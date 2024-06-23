@@ -1,13 +1,29 @@
-version: "3.9"
+version: '3.8'
 
 services:
   app:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    build: .
+    container_name: response_agent_app
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=example
+      - MONGO_URI=mongodb://root:example@mongodb:27017/
     volumes:
       - .:/app
-    ports:
-      - "8501:8501"
+    command: ["poetry", "run", "python", "responseagente/main.py"]
+    depends_on:
+      - mongodb
+
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
     environment:
-      - OPENAI_API_KEY=your_openai_api_key_here
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodata:/data/db
+
+volumes:
+  mongodata:
